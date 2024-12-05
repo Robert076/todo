@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 type todo struct {
@@ -17,14 +19,16 @@ var todos = []todo{
 	{ID: "3", Title: "Cook a healthy meal", Description: "We must get all the protein our body needs, so cook something healthy"},
 }
 
-func myfunc() {
-
-}
-
 func main() {
 	http.HandleFunc("/todos", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(todos)
+	})
+	http.HandleFunc("/todos/", func(w http.ResponseWriter, r *http.Request) {
+		id := strings.TrimPrefix(r.URL.Path, "/todos/")
+		w.Header().Set("Content-Type", "application/json")
+		idStr, _ := strconv.Atoi(id)
+		json.NewEncoder(w).Encode(todos[idStr])
 	})
 	http.ListenAndServe(":8080", nil)
 }
