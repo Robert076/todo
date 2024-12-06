@@ -27,6 +27,9 @@ func main() {
 		json.NewEncoder(w).Encode(todos)
 	})
 	http.HandleFunc("/todos/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
 		id := strings.TrimPrefix(r.URL.Path, "/todos/")
 		w.Header().Set("Content-Type", "application/json")
 		idInt, err := strconv.Atoi(id)
@@ -38,6 +41,9 @@ func main() {
 		}
 	})
 	http.HandleFunc("/todos/delete", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodDelete {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
 		id := r.URL.Query().Get("id")
 		idInt, err := strconv.Atoi(id)
 
@@ -49,6 +55,9 @@ func main() {
 		}
 	})
 	http.HandleFunc("/todos/create", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
 		title := r.URL.Query().Get("title")
 		if title == "" {
 			json.NewEncoder(w).Encode("Please provide a title")
