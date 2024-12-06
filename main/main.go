@@ -71,7 +71,7 @@ func main() {
 		}
 		http.Error(w, "Todo not found", http.StatusNotFound)
 	})
-	http.HandleFunc("/todos/create", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/todos/post", func(w http.ResponseWriter, r *http.Request) {
 		if methodNotAllowed(w, r, http.MethodPost) {
 			return
 		}
@@ -93,6 +93,25 @@ func main() {
 		todos = append(todos, newTodo)
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(newTodo)
+	})
+	http.HandleFunc("/todos/put", func(w http.ResponseWriter, r *http.Request) {
+		if methodNotAllowed(w, r, http.MethodPut) {
+			return
+		}
+		id := r.URL.Query().Get("id")
+		updatedTitle := r.URL.Query().Get("title")
+		updatedDescription := r.URL.Query().Get("description")
+
+		for i, _ := range todos {
+			if todos[i].ID == id {
+				todos[i].Title = updatedTitle
+				todos[i].Description = updatedDescription
+				w.WriteHeader(http.StatusOK)
+				json.NewEncoder(w).Encode(todos[i])
+				return
+			}
+		}
+		http.Error(w, "Not found", http.StatusNotFound)
 	})
 	http.ListenAndServe(":8080", nil)
 }
