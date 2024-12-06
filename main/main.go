@@ -91,6 +91,8 @@ func main() {
 		newTodo.Title = title
 		newTodo.Description = description
 		todos = append(todos, newTodo)
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(newTodo)
 	})
 	http.ListenAndServe(":8080", nil)
 }
