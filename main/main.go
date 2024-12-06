@@ -23,12 +23,17 @@ var todos = []todo{
 
 func main() {
 	http.HandleFunc("/todos", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(todos)
 	})
 	http.HandleFunc("/todos/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
 		}
 		id := strings.TrimPrefix(r.URL.Path, "/todos/")
 		w.Header().Set("Content-Type", "application/json")
@@ -37,12 +42,18 @@ func main() {
 		if len(todos) <= idInt || idInt < 0 || err != nil {
 			json.NewEncoder(w).Encode(nil)
 		} else {
-			json.NewEncoder(w).Encode(todos[idInt])
+			for _, todo := range todos {
+				if todo.ID == id {
+					json.NewEncoder(w).Encode(todo)
+					return
+				}
+			}
 		}
 	})
 	http.HandleFunc("/todos/delete", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodDelete {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
 		}
 		id := r.URL.Query().Get("id")
 		idInt, err := strconv.Atoi(id)
@@ -57,6 +68,7 @@ func main() {
 	http.HandleFunc("/todos/create", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
 		}
 		title := r.URL.Query().Get("title")
 		if title == "" {
