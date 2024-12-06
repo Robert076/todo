@@ -48,5 +48,22 @@ func main() {
 			todos = append(todos[:idInt], todos[idInt+1:]...)
 		}
 	})
+	http.HandleFunc("/todos/create", func(w http.ResponseWriter, r *http.Request) {
+		title := r.URL.Query().Get("title")
+		if title == "" {
+			json.NewEncoder(w).Encode("Please provide a title")
+			return
+		}
+		description := r.URL.Query().Get("description")
+		if description == "" {
+			json.NewEncoder(w).Encode("Please provide a description")
+		}
+		var newTodo todo
+		lastId, _ := strconv.Atoi(todos[len(todos)-1].ID)
+		newTodo.ID = strconv.Itoa(lastId + 1)
+		newTodo.Title = title
+		newTodo.Description = description
+		todos = append(todos, newTodo)
+	})
 	http.ListenAndServe(":8080", nil)
 }
