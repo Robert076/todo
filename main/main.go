@@ -27,8 +27,13 @@ func main() {
 	http.HandleFunc("/todos/", func(w http.ResponseWriter, r *http.Request) {
 		id := strings.TrimPrefix(r.URL.Path, "/todos/")
 		w.Header().Set("Content-Type", "application/json")
-		idStr, _ := strconv.Atoi(id)
-		json.NewEncoder(w).Encode(todos[idStr])
+		idInt, err := strconv.Atoi(id)
+
+		if len(todos) <= idInt || idInt < 0 || err != nil {
+			json.NewEncoder(w).Encode(nil)
+		} else {
+			json.NewEncoder(w).Encode(todos[idInt])
+		}
 	})
 	http.ListenAndServe(":8080", nil)
 }
