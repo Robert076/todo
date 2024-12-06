@@ -21,18 +21,24 @@ var todos = []todo{
 	{ID: "5", Title: "Clean the house", Description: "We will have guests coming over so let's clean the house"},
 }
 
+func methodNotAllowed(w http.ResponseWriter, r *http.Request, method string) bool {
+	if r.Method != method {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return true
+	}
+	return false
+}
+
 func main() {
 	http.HandleFunc("/todos", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		if methodNotAllowed(w, r, http.MethodGet) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(todos)
 	})
 	http.HandleFunc("/todos/", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		if methodNotAllowed(w, r, http.MethodGet) {
 			return
 		}
 		id := strings.TrimPrefix(r.URL.Path, "/todos/")
@@ -51,8 +57,7 @@ func main() {
 		}
 	})
 	http.HandleFunc("/todos/delete", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodDelete {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		if methodNotAllowed(w, r, http.MethodDelete) {
 			return
 		}
 		id := r.URL.Query().Get("id")
@@ -66,8 +71,7 @@ func main() {
 		}
 	})
 	http.HandleFunc("/todos/create", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		if methodNotAllowed(w, r, http.MethodPost) {
 			return
 		}
 		title := r.URL.Query().Get("title")
