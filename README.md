@@ -1,4 +1,3 @@
-# RESTful API for a to-do list
-### Using Go's standard library. Nothing external
+# RESTful API for a to-do list (standard Go library)
 
 ### How to use it
