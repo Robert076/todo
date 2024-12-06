@@ -46,7 +46,7 @@ func main() {
 		idInt, err := strconv.Atoi(id)
 
 		if len(todos) <= idInt || idInt < 0 || err != nil {
-			json.NewEncoder(w).Encode(nil)
+			http.Error(w, "Todo not found", http.StatusNotFound)
 		} else {
 			for _, todo := range todos {
 				if todo.ID == id {
@@ -61,14 +61,15 @@ func main() {
 			return
 		}
 		id := r.URL.Query().Get("id")
-		idInt, err := strconv.Atoi(id)
 
-		if len(todos) <= idInt || idInt < 0 || err != nil {
-			json.NewEncoder(w).Encode(nil)
-		} else {
-			json.NewEncoder(w).Encode("Deleting id " + id)
-			todos = append(todos[:idInt], todos[idInt+1:]...)
+		for i, todo := range todos {
+			if todo.ID == id {
+				todos = append(todos[:i], todos[i+1:]...)
+				json.NewEncoder(w).Encode("Todo with ID " + id + " deleted")
+				return
+			}
 		}
+		http.Error(w, "Todo not found", http.StatusNotFound)
 	})
 	http.HandleFunc("/todos/create", func(w http.ResponseWriter, r *http.Request) {
 		if methodNotAllowed(w, r, http.MethodPost) {
@@ -76,12 +77,13 @@ func main() {
 		}
 		title := r.URL.Query().Get("title")
 		if title == "" {
-			json.NewEncoder(w).Encode("Please provide a title")
+			http.Error(w, "Please provide a title", http.StatusBadRequest)
 			return
 		}
 		description := r.URL.Query().Get("description")
 		if description == "" {
-			json.NewEncoder(w).Encode("Please provide a description")
+			http.Error(w, "Please provide a description", http.StatusBadRequest)
+			return
 		}
 		var newTodo todo
 		lastId, _ := strconv.Atoi(todos[len(todos)-1].ID)
