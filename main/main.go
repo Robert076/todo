@@ -102,8 +102,8 @@ func main() {
 		updatedTitle := r.URL.Query().Get("title")
 		updatedDescription := r.URL.Query().Get("description")
 
-		for i, _ := range todos {
-			if todos[i].ID == id {
+		for i, todo := range todos {
+			if todo.ID == id {
 				todos[i].Title = updatedTitle
 				todos[i].Description = updatedDescription
 				w.WriteHeader(http.StatusOK)
